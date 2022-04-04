@@ -4,15 +4,10 @@ import "fmt"
 import "os/exec"
 
 func main() {
-    app  := "clamdscan"
+    app  := "clamdscan /tmp/input/* --no-summary --fdpass --move=/tmp/virus"
 
-    arg0 := "/tmp/input"
-    arg1 := "--no-summary"
-    arg2 := "--move=/tmp/virus"
-    arg3 := "--fdpass"
-
-    cmd := exec.Command(app, arg0, arg1, arg3, arg2)
-    stdout, err := cmd.Output()
+    cmd := exec.Command("/bin/sh", "-c", app)
+    stdout, err := cmd.CombinedOutput()
 
     if err != nil {
         fmt.Println(err.Error())
