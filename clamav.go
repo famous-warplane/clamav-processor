@@ -1,32 +1,34 @@
 package main
 
 import (
-    "fmt"
-    "os/exec"
-    s "strings"
+	"fmt"
+	"os/exec"
+	s "strings"
 )
 
 func main() {
-    clamdscanCmd := "clamdscan /tmp/input/* --no-summary --fdpass --move=/tmp/virus"
+	scanResultsArray := runClamdscan("/tmp/input/*", "/tmp/virus")
 
-    cmd := exec.Command("/bin/sh", "-c", clamdscanCmd)
-    stdout, _ := cmd.Output()
-
-    outputByLine := s.Split(string(stdout), "\n")
-
-    // Print the output
-    fmt.Println(string(outputByLine[0]))
-
-    for _, line := range outputByLine {
-        if s.Contains(line, "OK") {
-            filePath := s.Split(line, ":")[0]
-            fmt.Println(filePath)
-            exec.Command("/bin/sh", "-c", "mv" + filePath + "/tmp/goodfiles")
-
-    }
-
-    
-        
-    }
+	// Look throgh the clamscan output for files marked OK
+	for _, line := range scanResultsArray {
+		if s.Contains(line, "OK") {
+			// Get the file path for the scanned files
+			filePath := s.Split(line, ":")[0]
+			// Move the files marked OK to a seperate directory
+			mvCmd := exec.Command("/bin/sh", "-c", "mv "+filePath+" /tmp/goodfiles")
+			mvCmd.Output()
+		}
+	}
 }
 
+func runClamdscan(scanDirectory string, quarantineDirectory string) []string {
+	clamdscanCmd := "clamdscan " + scanDirectory + "--no-summary --fdpass --move=" + quarantineDirectory
+
+	cmd := exec.Command("/bin/sh", "-c", clamdscanCmd)
+	stdout, _ := cmd.Output()
+
+	outputByLine := s.Split(string(stdout), "\n")
+	fmt.Println(outputByLine)
+	return outputByLine
+
+}
