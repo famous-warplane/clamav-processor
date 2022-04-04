@@ -7,15 +7,10 @@ import (
 )
 
 func main() {
-    app  := "clamdscan /tmp/input/* --no-summary --fdpass --move=/tmp/virus"
+    clamdscanCmd := "clamdscan /tmp/input/* --no-summary --fdpass --move=/tmp/virus"
 
-    cmd := exec.Command("/bin/sh", "-c", app)
+    cmd := exec.Command("/bin/sh", "-c", clamdscanCmd)
     stdout, _ := cmd.Output()
-
-    // if err != nil {
-    //     fmt.Println(err.Error())
-    //     return
-    // }
 
     outputByLine := s.Split(string(stdout), "\n")
 
@@ -23,8 +18,11 @@ func main() {
     fmt.Println(string(outputByLine[0]))
 
     for _, line := range outputByLine {
-        if s.Contains(line, "OK"){
-            fmt.Println("gotit")
+        if s.Contains(line, "OK") {
+            filePath := s.Split(line, ":")[0]
+            fmt.Println(filePath)
+            exec.Command("/bin/sh", "-c", "mv" + filePath + "/tmp/goodfiles")
+
     }
 
     
