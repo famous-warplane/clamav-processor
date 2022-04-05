@@ -6,7 +6,6 @@ import (
 	"os"
 	"os/exec"
 	s "strings"
-
 	// flag "github.com/jessevdk/go-flags"
 )
 
@@ -22,9 +21,9 @@ func main() {
 	// 	"-s",
 	// }
 	// flag.ParseArgs(&opts, args)
-	var directoryToScan string;
-	var quarantineDirectory string;
-	var safeDirectory string;
+	var directoryToScan string
+	var quarantineDirectory string
+	var safeDirectory string
 
 	directoryToScan = os.Args[1]
 	quarantineDirectory = os.Args[2]
@@ -33,18 +32,17 @@ func main() {
 	scanResultsArray := runClamdscan(directoryToScan, quarantineDirectory)
 	// Look throgh the clamscan output for files marked OK
 	for _, line := range scanResultsArray {
-		if s.Contains(line, "README") {
+		if s.Contains(line, "OK") {
 			// Get the file path for the scanned files
-			filePath := s.Split(line, " ")[0]
+			filePath := s.Split(line, ":")[0]
 			// Move the files marked OK to a seperate directory
-			// os.Rename(filePath, opts.safeDirectory)
-			fmt.Println(filePath + " hi " + safeDirectory)
+			os.Rename(filePath, safeDirectory)
 		}
 	}
 }
 
 func runClamdscan(scanDirectory string, quarantineDirectory string) []string {
-	clamdscanCmd := "ls " + scanDirectory + " && ls " + quarantineDirectory
+	clamdscanCmd := "clamdscan " + scanDirectory + " --fdpass --no-summary --move=" + quarantineDirectory
 
 	cmd := exec.Command("/bin/sh", "-c", clamdscanCmd)
 	stdout, err := cmd.Output()
