@@ -1,21 +1,30 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
+	"os"
 	"os/exec"
 	s "strings"
+
+	flag "github.com/jessevdk/go-flags"
 )
 
 func main() {
-	scanResultsArray := runClamdscan("/tmp/input/*", "/tmp/virus")
+	var opts  struct {
+		directoryToScan  string `short: "d" long: "dirscan" description: "Directory to be scanned by ClamAV" required: "true"`
+		quarantineDirectory string `short: "q" long: "quarantinedir" desription: "Directory to send files deemed dangerous by ClamAV to be quarantined" required: "true"`
+		safeDirectory string `short: "s" long: "safedir" desription: "Directory to send files deemed safe by ClamAV to be processed" required: "true"`
+	}
+	flag.Parse(opts)
+
+	scanResultsArray := runClamdscan(opts.directoryToScan, opts.quarantineDirectory)
 	// Look throgh the clamscan output for files marked OK
 	for _, line := range scanResultsArray {
 		if s.Contains(line, "OK") {
 			// Get the file path for the scanned files
 			filePath := s.Split(line, ":")[0]
 			// Move the files marked OK to a seperate directory
-			mvCmd := exec.Command("/bin/sh", "-c", "mv "+filePath+" /tmp/goodfiles")
-			mvCmd.Output()
+			os.Rename(filePath, opts.safeDirectory)
 		}
 	}
 }
