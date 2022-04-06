@@ -6,18 +6,37 @@ import (
 	"os"
 	"os/exec"
 	s "strings"
+
+	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 )
 
+const UsageString string = "cap INPUT_PATH -q QUARANTINE_PATH -o OUTPUT_PATH"
+
+var logger zap.SugaredLogger
+
+func initLogger() {
+	logConf := zap.NewProductionConfig()
+	logConf.Encoding = "console"
+	logConf.EncoderConfig.EncodeLevel = zapcore.CapitalLevelEncoder
+	logConf.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	unsugared, err := logConf.Build()
+
+	if err != nil {
+		fmt.Print(err)
+		os.Exit(1)
+	}
+	logger = *unsugared.Sugar()
+}
+
 func main() {
-	var directoryToScan string
-	var quarantineDirectory string
-	var safeDirectory string
+	initLogger()
+	conf, err := initConfig()
+	if err != nil {
+		logger.Fatalf("failed to initialise application configuation: %v", err)
+	}
 
-	directoryToScan = os.Args[1]
-	quarantineDirectory = os.Args[2]
-	safeDirectory = os.Args[3]
-
-	scanResultsArray := runClamdscan(directoryToScan, quarantineDirectory)
+	scanResultsArray := runClamdscan(conf.inputPath, conf.quarantinePath)
 	// Look throgh the clamscan output for files marked OK
 	for _, line := range scanResultsArray {
 		/*  The clamdscan outputs in a format similar to:
@@ -36,7 +55,7 @@ func main() {
 			fileName := filePathParts[len(filePathParts)-1]
 
 			// Move the files marked OK to a seperate 'safe' directory
-			os.Rename(filePath, safeDirectory+"/"+fileName)
+			os.Rename(filePath, conf.outputPath+"/"+fileName)
 		}
 	}
 }
