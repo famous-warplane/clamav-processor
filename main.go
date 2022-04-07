@@ -63,10 +63,11 @@ func scan(conf config) error {
 				continue
 			}
 			filePath := outputParts[0]
-			filePathParts := strings.Split(filePath, "/")
-			fileName := filePathParts[len(filePathParts)-1]
-
-			os.Rename(filePath, conf.outputPath+"/"+fileName)
+			fileName := path.Base(filePath)
+			newPath := path.Join(conf.outputPath, fileName)
+			logger.Debugf("found safe file to move %q", filePath)
+			os.Rename(filePath, newPath)
+			logger.Infof("moved file %q to %q", filePath, newPath)
 		}
 	}
 	return nil
@@ -95,9 +96,10 @@ func runClamdscan(scanDirectory string, quarantineDirectory string) ([]string, e
 	if err != nil {
 		return nil, fmt.Errorf("failed to process scan output: %w", err)
 	}
-	err = cmd.Wait()
-	if err != nil {
-		return nil, fmt.Errorf("clamav scan failed with error: %w: %s", err, strings.TrimSpace(string(cmdErr)))
+	cmd.Wait()
+	// clamdscan returns an error code if it finds virus files so ignore the code and output to log if we get output to STDERR
+	if len(cmdErr) > 0 {
+		return nil, fmt.Errorf("clamav scan failed with error: %s", strings.TrimSpace(string(cmdErr)))
 	}
 	return strings.Split(string(cmdOut), "\n"), nil
 
