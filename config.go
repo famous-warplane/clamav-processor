@@ -2,7 +2,6 @@ package main
 
 import (
 	"errors"
-	"os"
 	"time"
 
 	"github.com/spf13/pflag"
@@ -27,7 +26,7 @@ func initConfig() (config, error) {
 	if *inPath == "" {
 		return conf, errors.New("no input directory provided")
 	}
-	conf.inputPath = os.Args[1]
+	conf.inputPath = *inPath
 
 	if *outPath == "" {
 		return conf, errors.New("no output directory provided")

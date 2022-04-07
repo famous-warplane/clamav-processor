@@ -12,10 +12,12 @@ import (
 	"github.com/spf13/pflag"
 )
 
+const BinaryName string = "clamdscan"
+
 func main() {
 	initLogger()
 
-	_, err := exec.LookPath("clamdscan")
+	_, err := exec.LookPath(BinaryName)
 	if err != nil {
 		logger.Fatal("could not find 'clamdscan' in the PATH environment variable")
 	}
@@ -71,8 +73,8 @@ func scan(conf config) error {
 }
 
 func runClamdscan(scanDirectory string, quarantineDirectory string) ([]string, error) {
-	clamdscanCmd := fmt.Sprintf("clamdcan %s --fdpass --no-summary --move=%s", path.Join(scanDirectory, "*"), quarantineDirectory)
-
+	clamdscanCmd := fmt.Sprintf("%s %s --fdpass --no-summary --move=%s", BinaryName, path.Join(scanDirectory, "*"), quarantineDirectory)
+	fmt.Print(clamdscanCmd)
 	cmd := exec.Command("/bin/sh", "-c", clamdscanCmd)
 	stdout, err := cmd.StdoutPipe()
 	stderr, err := cmd.StderrPipe()
