@@ -74,7 +74,7 @@ func scan(conf config) error {
 
 func runClamdscan(scanDirectory string, quarantineDirectory string) ([]string, error) {
 	clamdscanCmd := fmt.Sprintf("%s %s --fdpass --no-summary --move=%s", BinaryName, path.Join(scanDirectory, "*"), quarantineDirectory)
-	fmt.Print(clamdscanCmd)
+	logger.Infof("executing command %q", clamdscanCmd)
 	cmd := exec.Command("/bin/sh", "-c", clamdscanCmd)
 	stdout, err := cmd.StdoutPipe()
 	stderr, err := cmd.StderrPipe()
