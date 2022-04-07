@@ -5,6 +5,7 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"path"
 	"strings"
 	"time"
 
@@ -70,7 +71,7 @@ func scan(conf config) error {
 }
 
 func runClamdscan(scanDirectory string, quarantineDirectory string) ([]string, error) {
-	clamdscanCmd := "clamdscan " + scanDirectory + " --fdpass  --no-summary --move=" + quarantineDirectory
+	clamdscanCmd := fmt.Sprintf("clamdcan %s --fdpass --no-summary --move=%s", path.Join(scanDirectory, "*"), quarantineDirectory)
 
 	cmd := exec.Command("/bin/sh", "-c", clamdscanCmd)
 	stdout, err := cmd.StdoutPipe()
