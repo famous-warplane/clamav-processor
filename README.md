@@ -16,7 +16,7 @@ cap -i /var/in -o /var/out -q /var/quarantine -p 30
 
 ## TODO:
 
-[x] Add logging
-[x] Add timer element so it can run periodically
-[] Test it properly with lots of files (virus test files can be found here https://www.eicar.org/?page_id=3950)
+- [x] Add logging
+- [x] Add timer element so it can run periodically
+- [] Test it properly with lots of files (virus test files can be found here https://www.eicar.org/?page_id=3950)
 
