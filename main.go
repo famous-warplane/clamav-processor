@@ -33,6 +33,10 @@ func initLogger() {
 
 func main() {
 	initLogger()
+	_, err := exec.LookPath("clamdscan")
+	if err != nil {
+		logger.Fatal("could not find 'clamdscan' in the PATH environment variable")
+	}
 	conf, err := initConfig()
 	if err != nil {
 		fmt.Println(err)
