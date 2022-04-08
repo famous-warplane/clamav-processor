@@ -12,9 +12,15 @@ import (
 	"github.com/spf13/pflag"
 )
 
+var Version string = "development"
+
 const BinaryName string = "clamdscan"
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "version" {
+		fmt.Println(Version)
+		return
+	}
 	initLogger()
 
 	_, err := exec.LookPath(BinaryName)
