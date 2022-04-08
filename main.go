@@ -66,7 +66,10 @@ func scan(conf config) error {
 			fileName := path.Base(filePath)
 			newPath := path.Join(conf.outputPath, fileName)
 			logger.Debugf("found safe file to move %q", filePath)
-			os.Rename(filePath, newPath)
+			err := os.Rename(filePath, newPath)
+			if err != nil {
+				logger.Errorf("failed to move safe file: %v", err)
+			}
 			logger.Infof("moved file %q to %q", filePath, newPath)
 		}
 	}
