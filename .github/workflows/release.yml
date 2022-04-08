@@ -32,6 +32,7 @@ jobs:
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
           extra_files: LICENSE README.md
+          ldflags: -X 'main.Version=${{github.event.release.tag_name}}'
           binary_name: cap
 
 
