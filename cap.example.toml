@@ -1,0 +1,11 @@
+# quarantinePath is the path to which scanned files flagged by ClamAV are moved
+quarantinePath = '/var/cap/quarantine'
+
+# inputPath is the path containing files to be scanned by ClamAV
+inputPath = '/var/cap/input'
+
+# outputPath is the path to which scanned files marked as 'OK' by ClamAV are moved
+outputPath = '/var/cap/output'
+
+# scanInterval is the time in seconds between scans
+scanInterval = 60

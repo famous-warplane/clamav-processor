@@ -8,8 +8,6 @@ import (
 	"path"
 	"strings"
 	"time"
-
-	"github.com/spf13/pflag"
 )
 
 var Version string = "development"
@@ -31,26 +29,32 @@ func main() {
 	conf, err := initConfig()
 	if err != nil {
 		fmt.Println(err)
-		pflag.Usage()
 		os.Exit(1)
 	}
 
-	ticker := time.NewTicker(conf.scanInterval)
+	ticker := time.NewTicker(time.Duration(conf.ScanInterval) * time.Second)
 	defer ticker.Stop()
 
+	// run instantly without waiting for first tick
+	runScan(conf)
+
 	for range ticker.C {
-		logger.Debug("processing input path")
-		err = scan(conf)
-		if err != nil {
-			logger.Errorf("error while scanning directory: %v", err)
-		}
+		runScan(conf)
+	}
+}
+
+func runScan(conf config) {
+	logger.Debug("processing input path")
+	err := scan(conf)
+	if err != nil {
+		logger.Errorf("error while scanning directory: %v", err)
 	}
 }
 
 //scan runs a clamav scan and moves 'OK' files to the specified output path
 func scan(conf config) error {
 	logger.Debug("running scan")
-	scanResultsArray, err := runClamdscan(conf.inputPath, conf.quarantinePath)
+	scanResultsArray, err := runClamdscan(conf.InputPath, conf.QuarantinePath)
 	if err != nil {
 		return err
 	}
@@ -70,7 +74,7 @@ func scan(conf config) error {
 			}
 			filePath := outputParts[0]
 			fileName := path.Base(filePath)
-			newPath := path.Join(conf.outputPath, fileName)
+			newPath := path.Join(conf.OutputPath, fileName)
 			logger.Debugf("found safe file to move %q", filePath)
 			err := os.Rename(filePath, newPath)
 			if err != nil {
